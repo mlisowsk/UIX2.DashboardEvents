@@ -5,7 +5,7 @@ window.OnNewDashboard = (dashboard) => {
 
 	function handleDashboardStarted() {
 		console.log("Dashboard.Started");
-		if (dashboard.CustomData && dashboard.CustomData.currentPath) {
+		if (dashboard.CustomData && dashboard.CustomData.hasOwnProperty("currentPath")) {
 			document.getElementById("curPath").innerHTML = dashboard.CustomData.currentPath;
 		} else console.warn("No CustomData set");
 	}
@@ -24,18 +24,18 @@ window.OnNewDashboard = (dashboard) => {
 
 	dashboard.Events.Register(MFiles.Event.Started, handleDashboardStarted).then((handle) => {
 		hdlDBStarted = handle;
-		console.log("hdlDBStarted = " + handle);
+		console.log("registered hdlDBStarted = " + handle);
 	});
 	dashboard.Events.Register(MFiles.Event.Stop, handleDashboardStop).then((handle) => {
 		hdlDBStop = handle;
-		console.log("hdlDBStop = " + handle);
+		console.log("registered hdlDBStop = " + handle);
 	});
 	dashboard.Events.Register(MFiles.Event.Refresh, handleCustomDataChanged).then((handle) => {
 		hdlCustomDataChanged = handle;
-		console.log("hdlCustomDataChanged = " + handle);
+		console.log("registered hdlCustomDataChanged = " + handle);
 	});
 	dashboard.Events.Register(MFiles.Event.Refresh, handleDashboardRefresh).then((handle) => {
 		hdlDBRefresh = handle;
-		console.log("hdlDBRefresh = " + handle);
+		console.log("registered hdlDBRefresh = " + handle);
 	});
 }
