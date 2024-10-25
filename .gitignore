@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# M-Files vault credentials
+install-application.user.json
+
 # User-specific files
 *.rsuser
 *.suo

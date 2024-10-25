@@ -32,7 +32,7 @@ function onNewNormalShellFrame(shellFrame) {
       (command) => {
         // Execute only our custom command.
         if (command === dashboardCommand) {
-          shellFrame.ShowDashboard('MyDashboard')
+            shellFrame.ShowDashboard('MyDashboard', { currentPath: shellFrame.CurrentPath })
         }
       },
     )

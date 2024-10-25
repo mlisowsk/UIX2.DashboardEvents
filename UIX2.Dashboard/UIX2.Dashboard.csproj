@@ -17,20 +17,24 @@
     <DebugSymbols>false</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>bin\</OutputPath>
+	<MFilesVaultGroup>test</MFilesVaultGroup>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>bin\</OutputPath>
+	<MFilesVaultGroup>test</MFilesVaultGroup>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app\appdef.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="app\dashboard.js" />
     <Content Include="app\index.html" />
     <Content Include="app\shellui.js" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="install-application.ps1" />
     <None Include="packages.config" />
   </ItemGroup>
   <Target Name="Clean">
@@ -41,12 +45,16 @@
     <CreateItem Include="app\**">
       <Output ItemName="ApplicationFiles" TaskParameter="Include" />
     </CreateItem>
-    <Zip ZipFileName="out\$(AssemblyName).mfappx" WorkingDirectory="$(MSBuildProjectDirectory)\app" Files="@(ApplicationFiles)" />
+    <Zip ZipFileName="$(OutputPath)\$(AssemblyName).mfappx" WorkingDirectory="$(MSBuildProjectDirectory)\app" Files="@(ApplicationFiles)" />
     <!-- Modify and uncomment the following line to enable development time installation to sysapps folder.
          Visual Studio needs to run in Administrative mode. -->
     <!-- <Unzip ZipFileName="out\$(AssemblyName).mfappx" TargetDirectory="C:\Program Files\M-Files\<Version>\Client\Apps\<VaultGuid>\sysapps\$(AssemblyName)" /> -->
   </Target>
   <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+	<Target Name="DeployIfNeeded" AfterTargets="Build" Condition="false == $(DefineConstants.Contains('DONOTDEPLOY'))">
+		<Message Importance="High" Text="Executing deployment script..." />
+		<Exec Command="PowerShell -ExecutionPolicy Bypass -File install-application.ps1 -appFilePath &quot;$(OutputPath)\$(AssemblyName).mfappx&quot; $(MFilesVaultGroup)" />
+	</Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
