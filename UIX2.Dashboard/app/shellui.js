@@ -22,7 +22,7 @@ function onNewNormalShellFrame(shellFrame) {
   async function onStarted() {
 	  // Set up custom commands in top menu
 
-	  const showDashboardCommand = await shellFrame.Commands.CreateCustomCommand('Show my dashboard');
+	  const showDashboardCommand = await shellFrame.Commands.CreateCustomCommand('Show DashboardEvents dashboard');
 	  //const updateCustomDataCommand = await shellFrame.Commands.CreateCustomCommand('Update CustomData');
 
       await shellFrame.Commands.AddCustomCommandToMenu(
