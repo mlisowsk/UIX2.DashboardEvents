@@ -30,7 +30,7 @@ window.OnNewDashboard = (dashboard) => {
 		hdlDBStop = handle;
 		console.log("registered hdlDBStop = " + handle);
 	});
-	dashboard.Events.Register(MFiles.Event.Refresh, handleCustomDataChanged).then((handle) => {
+	dashboard.Events.Register(MFiles.Event.CustomDataChanged, handleCustomDataChanged).then((handle) => {
 		hdlCustomDataChanged = handle;
 		console.log("registered hdlCustomDataChanged = " + handle);
 	});
