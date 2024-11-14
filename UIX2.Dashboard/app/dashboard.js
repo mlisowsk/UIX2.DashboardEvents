@@ -8,6 +8,7 @@ window.OnNewDashboard = (dashboard) => {
 		if (dashboard.CustomData && dashboard.CustomData.hasOwnProperty("currentPath")) {
 			document.getElementById("curPath").innerHTML = dashboard.CustomData.currentPath;
 		} else console.warn("No CustomData set");
+		document.getElementById("curTime").innerHTML = new Date().toISOString();
 	}
 
 	function handleDashboardStop() {
@@ -20,6 +21,7 @@ window.OnNewDashboard = (dashboard) => {
 
 	function handleDashboardRefresh() {
 		console.log("Dashboard.Refresh");
+		document.getElementById("curTime").innerHTML = new Date().toISOString();
 	}
 
 	dashboard.Events.Register(MFiles.Event.Started, handleDashboardStarted).then((handle) => {
