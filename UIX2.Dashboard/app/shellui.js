@@ -21,31 +21,55 @@ function onNewNormalShellFrame(shellFrame) {
   // return values, because when the postMessage API is used, all return values will be async.
   async function onStarted() {
 	  // Set up custom commands in top menu
+	  var dashboard;
 
 	  const showDashboardCommand = await shellFrame.Commands.CreateCustomCommand('Show DashboardEvents dashboard');
-	  //const updateCustomDataCommand = await shellFrame.Commands.CreateCustomCommand('Update CustomData');
+	  const hideDashboardCommand = await shellFrame.Commands.CreateCustomCommand('Hide DashboardEvents dashboard');
+	  const updateCustomDataCommand = await shellFrame.Commands.CreateCustomCommand('Update DashboardEvents CustomData');
 
       await shellFrame.Commands.AddCustomCommandToMenu(
           showDashboardCommand,
           MFiles.MenuLocation.MenuLocation_TopPaneMenu,
           1,
       );
-      //await shellFrame.Commands.AddCustomCommandToMenu(
-      //    updateCustomDataCommand,
-      //    MFiles.MenuLocation.MenuLocation_TopPaneMenu,
-      //    1,
-      //);
+      await shellFrame.Commands.AddCustomCommandToMenu(
+          hideDashboardCommand,
+          MFiles.MenuLocation.MenuLocation_TopPaneMenu,
+          1,
+	  );
+	  await shellFrame.Commands.AddCustomCommandToMenu(
+		  updateCustomDataCommand,
+		  MFiles.MenuLocation.MenuLocation_TopPaneMenu,
+		  1,
+	  );
 	  await shellFrame.Commands.Events.Register(
 		  MFiles.Event.CustomCommand,
 		  (command) => {
 			  // Execute only our custom command.
 			  if (command === showDashboardCommand) {
-				  shellFrame.ShowDashboard('MyDashboard', { currentPath: shellFrame.CurrentPath });
+				  shellFrame.ShowDashboard('MyDashboard', { currentPath: shellFrame.CurrentPath }).then((dash) => {
+					  console.log("ShowDashboard resolved promise.", dash);
+					  if (dashboard && dash && dash != dashboard)
+						  console.log("New dashboard does not match previous dashboard. olddashboard.__updatedAt=" + dashboard.__updatedAt + " new dashboard.__updatedAt=" + dash.__updatedAt + " delta=" + (dash.__updatedAt - dashboard.__updatedAt));
+					  else
+						  dashboard = dash;	// only update dashboard reference if it is the same dashboard as before. M-Files 25.10 sends us a new dashboard instance but it's actually the old one that is shown.
+
+					  // Need to defer sending the NotifyApplication to dashboard to allow dashboard to register its event handlers
+					  // Potential race condition! Using zero delay will not work in M-Files 25.10
+					  setTimeout(() => {
+						  console.log("About to NotifyApplication");
+						  shellFrame.ShellUI.NotifyApplication("e52213ba-1a02-4383-9b40-06d02f642d90", "SHOW", { currentPath: shellFrame.CurrentPath });
+					  }, 100);
+				  });
 			  }
-			  // commented out since we have no way to get the dashboard handle
-			  //if (command === updateCustomDataCommand) {
-				 // myDashboard.UpdateCustomData('MyDashboard', { currentPath: shellFrame.CurrentPath });
-			  //}
+			  if (command === hideDashboardCommand) {
+				  shellFrame.ShellUI.NotifyApplication("e52213ba-1a02-4383-9b40-06d02f642d90", "HIDE", {});
+				  shellFrame.ShowDefaultContent();
+			  }
+			  // The following will work only on M-Files 25.10 or later
+			  if (command === updateCustomDataCommand && dashboard) {
+				  dashboard.UpdateCustomData({ currentPath: shellFrame.CurrentPath });
+			  }
 		  },
 	  )
   }

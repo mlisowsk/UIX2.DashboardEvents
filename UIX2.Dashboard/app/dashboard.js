@@ -2,13 +2,26 @@ window.OnNewDashboard = (dashboard) => {
 	console.log("OnNewDashboard");
 
 	var hdlDBStarted, hdlDBStop, hdlCustomDataChanged, hdlDBRefresh;
+	var hdlCrossAppNotif;
+	var isUiLoaded = false;
 
-	function handleDashboardStarted() {
-		console.log("Dashboard.Started");
+	function loadUI() {
+		console.log("loadUI");
 		if (dashboard.CustomData && dashboard.CustomData.hasOwnProperty("currentPath")) {
 			document.getElementById("curPath").innerHTML = dashboard.CustomData.currentPath;
 		} else console.warn("No CustomData set");
 		document.getElementById("curTime").innerHTML = new Date().toISOString();
+		isUiLoaded = true;
+	}
+
+	function unloadUI() {
+		console.log("unloadUI");
+		document.getElementById("curPath").innerHTML = "-dashboard unloaded-";
+		isUiLoaded = false;
+	}
+
+	function handleDashboardStarted() {
+		console.log("Dashboard.Started");
 	}
 
 	function handleDashboardStop() {
@@ -22,6 +35,34 @@ window.OnNewDashboard = (dashboard) => {
 	function handleDashboardRefresh() {
 		console.log("Dashboard.Refresh");
 		document.getElementById("curTime").innerHTML = new Date().toISOString();
+	}
+
+	/**
+	 * Handler for CrossApplicationNotification event
+	 */
+	function handleCrossApplicationNotification(appGUID, msgId, data) {
+		try {
+			console.log("ShellUI.CrossApplicationNotification", "appGUID=" + appGUID + " msgId=" + msgId, data);
+
+			switch (msgId) {
+				case "SHOW":
+					if (isUiLoaded) {
+						unloadUI();
+					}
+					// Update CustomData "manually" as the UpdateCustomData event cannot be triggered 
+					// for listing dashboards on M-Files 24.11 due to a bug.
+					dashboard.CustomData = data;
+					loadUI();
+					break;
+				case "HIDE":
+					if (isUiLoaded) unloadUI();
+					break;
+				default:
+			}
+		} catch (ex) {
+			console.log("ShellUI.CrossApplicationNotification: Exception: " + ex.message, ex);
+		}
+		return true;
 	}
 
 	dashboard.Events.Register(MFiles.Event.Started, handleDashboardStarted).then((handle) => {
@@ -41,6 +82,16 @@ window.OnNewDashboard = (dashboard) => {
 		console.log("registered hdlDBRefresh = " + handle);
 	});
 
+	if (dashboard.ShellFrame) {
+		var shellUI = dashboard.ShellFrame.ShellUI;
+		// register handler for CrossApplicationNotification
+		// to listen for changes in view location
+		shellUI.Events.Register(MFiles.Event.CrossApplicationNotification, handleCrossApplicationNotification).then((handle) => {
+			hdlCrossAppNotif = handle;
+			console.log("registered hdlCrossAppNotif = " + handle);
+		});
+	}
+		
 	// ShellListing events:
 
 	function handleListingContentChanged(items) {

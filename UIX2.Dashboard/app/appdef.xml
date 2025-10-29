@@ -2,7 +2,7 @@
 <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.m-files.com/schemas/appdef-client-v5.xsd">
 	<guid>e52213ba-1a02-4383-9b40-06d02f642d90</guid>
 	<name>Dashboard Events</name>
-	<version>0.3</version>
+	<version>0.4</version>
 	<description>Showing which events fire when</description>
 	<publisher>Martin Lisowski</publisher>
 	<enabled-by-default>true</enabled-by-default>
